@@ -1,5 +1,8 @@
+import { IUser } from "./src/types";
+
 declare namespace Express {
   export interface Request {
-    userId: string;
+    user: IUser;
+    token: string;
   }
 }
