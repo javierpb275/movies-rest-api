@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser } from "../types";
+import { IUser, Role } from "../types";
 import validator from "validator";
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -35,9 +35,10 @@ const userSchema = new mongoose.Schema<IUser>(
         }
       },
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    role: {
+      type: String,
+      enum: Role,
+      default: Role.USER,
     },
     lists: [
       {

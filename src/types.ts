@@ -1,4 +1,4 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
 //MOVIE
 
@@ -11,45 +11,65 @@ export interface IMovie extends mongoose.Document {
   screenWriters: string[];
   genres: string[];
   synopsis: string;
-  reviews: ObjectId[]; //HAS MANY REVIEWS
-  scores: ObjectId[]; //HAS MANY SCORES
+  reviews: IReview[]; //HAS MANY REVIEWS
+  scores: IScore[]; //HAS MANY SCORES
 }
 
 //USER
+
+export enum Role {
+  ADMIN = "ADMIN",
+  USER = "USER",
+}
 
 export interface IUser extends mongoose.Document {
   email: string;
   password: string;
   username: string;
-  isAdmin: boolean;
-  lists: ObjectId[]; //HAS MANY LISTS OF MOVIES
+  role: Role;
+  lists: IList[]; //HAS MANY LISTS OF MOVIES
 }
 
 //LIST
 
 export interface IList extends mongoose.Document {
   name: string;
-  movies: ObjectId[]; //HAS MANY MOVIES
-  user: ObjectId; //IS MADE BY SOME USER
+  movies: IMovie[]; //HAS MANY MOVIES
+  user: IUser; //IS MADE BY SOME USER
 }
 
 //REVIEW
 
-type Opinion = "bad" | "mediocre" | "good";
+export enum Opinion {
+  BAD = "bad",
+  MEDIOCRE = "mediocre",
+  GOOD = "good",
+}
 
 export interface IReview extends mongoose.Document {
   comment: string;
   opinion: Opinion;
-  movie: ObjectId; //BELONGS TO SOME MOVIE
-  user: ObjectId; //IS MADE BY SOME USER
+  movie: IMovie; //BELONGS TO SOME MOVIE
+  user: IUser; //IS MADE BY SOME USER
 }
 
 //SCORE
 
-type Points = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export enum Points {
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+  FOUR = 4,
+  FIVE = 5,
+  SIX = 6,
+  SEVEN = 7,
+  EIGHT = 8,
+  NINE = 9,
+  TEN = 10,
+}
 
 export interface IScore extends mongoose.Document {
   points: Points;
-  movie: ObjectId; //BELONGS TO A MOVIE
-  user: ObjectId; //IS MADE BY SOME USER
+  movie: IMovie; //BELONGS TO A MOVIE
+  user: IUser; //IS MADE BY SOME USER
 }
