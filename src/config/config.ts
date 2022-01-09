@@ -1,8 +1,11 @@
 export default {
   DB: {
-    URI: process.env.MONGODB_URI || "mongodb://localhost/movies-rest-api",
-    USER: process.env.MONGODB_USER,
-    PASSWORD: process.env.MONGODB_PASSWORD,
+    URI: process.env.MONGODB_URI || "somedburl",
+    USER: process.env.MONGODB_USER || "somedbuser",
+    PASSWORD: process.env.MONGODB_PASSWORD || "somedbpassword",
   },
-  JWT_SECRET: process.env.JWT_SECRET || "somesecrettoken",
+  AUTH: {
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || "somesecrettoken",
+    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || "somesecrettoken",
+  },
 };

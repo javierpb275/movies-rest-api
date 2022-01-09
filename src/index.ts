@@ -1,8 +1,5 @@
 import app from "./app";
-import dotenv from "dotenv";
 import { startMongooseConnection } from "./db/mongoose";
-
-dotenv.config();
 
 startMongooseConnection();
 
