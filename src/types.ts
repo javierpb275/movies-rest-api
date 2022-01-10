@@ -28,6 +28,7 @@ export interface IUser extends mongoose.Document {
   username: string;
   role: Role;
   lists: IList[]; //HAS MANY LISTS OF MOVIES
+  tokens: string[];
   comparePassword: (password: string) => Promise<boolean>;
 }
 
