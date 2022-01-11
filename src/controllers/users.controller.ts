@@ -1,37 +1,64 @@
 import { Request, Response } from "express";
-import config from "../config/config";
-import { generateToken } from "../helpers/tokenGenerator.helper";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../helpers/tokenGenerator.helper";
 import User from "../models/user.model";
 import { IUser } from "../types";
 
+//REFRESH TOKENS LIST:
+let refreshTokens: string[] = [];
+
 class UsersController {
+  //REFRESH TOKEN:
+  public async refreshToken(req: Request, res: Response): Promise<Response> {
+    try {
+      if (!refreshTokens.includes(req.body.token)) {
+        return res.status(400).send("Refresh Token Invalid");
+      }
+
+      //remove the old refreshToken from the refreshTokens list:
+      refreshTokens = refreshTokens.filter((c) => c != req.body.token);
+
+      //generate new accessToken and refreshTokens:
+      const accessToken: string = generateAccessToken(req.body.userId);
+      const refreshToken: string = generateRefreshToken(req.body.userId);
+
+      //add refresh token
+      refreshTokens.push(refreshToken);
+
+      return res
+        .status(200)
+        .json({ accessToken: accessToken, refreshToken: refreshToken });
+    } catch (error) {
+      return res.status(500).json({ message: error });
+    }
+  }
+
   //CREATE USER:
   public async createUser(req: Request, res: Response): Promise<Response> {
     //create newUser:
     const newUser: IUser = new User(req.body);
+
     try {
       //check if user exist:
       const foundUser: IUser | null = await User.findOne({
         email: req.body.email,
       });
+
       if (foundUser) {
         return res.status(400).json({ message: "Wrong email. Try again" });
       }
-      //create accesstoken and refreshtoken:
-      const accessToken: string = generateToken(
-        newUser,
-        config.AUTH.ACCESS_TOKEN_SECRET,
-        "15m"
-      );
-      const refreshToken: string = generateToken(
-        newUser,
-        config.AUTH.REFRESH_TOKEN_SECRET,
-        "20m"
-      );
 
-      //add refreshtoken to tokens array and save user:
-      newUser.tokens.push(refreshToken);
+      //create accesstoken and refreshtoken:
+      const accessToken: string = generateAccessToken(newUser._id.toString());
+      const refreshToken: string = generateRefreshToken(newUser._id.toString());
+
+      //save user:
       await newUser.save();
+
+      //add refresh token
+      refreshTokens.push(refreshToken);
 
       //respond with user, accesstoken and refreshtoken
       return res.status(201).json({
@@ -46,12 +73,13 @@ class UsersController {
 
   //LOGIN:
   public async login(req: Request, res: Response): Promise<Response> {
-    //check if there is and email and a password:
+    //check if there is an email and a password:
     if (!req.body.email || !req.body.password) {
       return res
         .status(400)
         .json({ message: "Please, Send your email and password" });
     }
+
     try {
       //check if user exist:
       const foundUser: IUser | null = await User.findOne({
@@ -60,27 +88,23 @@ class UsersController {
       if (!foundUser) {
         return res.status(400).json({ message: "Wrong credentials" });
       }
+
+      //check password:
       const isMatch: boolean = await foundUser.comparePassword(
         req.body.password
       );
       if (!isMatch) {
         return res.status(400).json({ message: "Wrong credentials" });
       }
+
       //create accesstoken and refreshtoken:
-      const accessToken: string = generateToken(
-        foundUser,
-        config.AUTH.ACCESS_TOKEN_SECRET,
-        "15m"
-      );
-      const refreshToken: string = generateToken(
-        foundUser,
-        config.AUTH.REFRESH_TOKEN_SECRET,
-        "20m"
+      const accessToken: string = generateAccessToken(foundUser._id.toString());
+      const refreshToken: string = generateRefreshToken(
+        foundUser._id.toString()
       );
 
-      //add refreshtoken to tokens array and save user:
-      foundUser.tokens.push(refreshToken);
-      await foundUser.save();
+      //add refresh token
+      refreshTokens.push(refreshToken);
 
       //respond with user, accesstoken and refreshtoken
       return res.status(200).json({
@@ -96,9 +120,12 @@ class UsersController {
   //LOGOUT:
   public async logout(req: Request, res: Response): Promise<Response> {
     try {
+      //remove the old refreshToken from the refreshTokens list
+      refreshTokens = refreshTokens.filter((c) => c != req.body.token);
+
       return res.status(200).json({ message: "success logging out" });
     } catch (error) {
-      return res.status(500).send();
+      return res.status(500).json({ message: error });
     }
   }
 

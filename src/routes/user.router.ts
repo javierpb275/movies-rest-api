@@ -3,6 +3,7 @@ import usersController from "../controllers/users.controller";
 
 const router: Router = Router();
 
+router.post("/refreshToken", usersController.refreshToken);
 router.post("/", usersController.createUser);
 router.post("/login", usersController.login);
 router.post("/logout", usersController.logout);

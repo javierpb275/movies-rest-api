@@ -47,12 +47,6 @@ const userSchema = new mongoose.Schema<IUser>(
         ref: "List",
       },
     ],
-    tokens: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
   },
   {
     timestamps: true,
