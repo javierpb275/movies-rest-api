@@ -27,9 +27,10 @@ class UsersController {
       //add refresh token
       refreshTokens.push(refreshToken);
 
-      return res
-        .status(200)
-        .json({ accessToken: accessToken, refreshToken: refreshToken });
+      return res.status(200).json({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
@@ -123,7 +124,11 @@ class UsersController {
       //remove the old refreshToken from the refreshTokens list
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
-      return res.status(200).json({ message: "success logging out" });
+      const user = await User.findOne({ _id: req.userId });
+
+      return res
+        .status(200)
+        .json({ message: "success logging out", theUser: user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
@@ -131,13 +136,17 @@ class UsersController {
 
   //GET PROFILE:
   public async getProfile(req: Request, res: Response): Promise<Response> {
-    return res.status(200).json("my user");
+    const user = await User.findOne({ _id: req.userId });
+    return res.status(200).json({ user });
   }
 
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
     try {
-      return res.status(200).json({ message: "success updating profile" });
+      const user = await User.findOne({ _id: req.userId });
+      return res
+        .status(200)
+        .json({ message: "success updating profile", theUser: user });
     } catch (error) {
       return res.status(400).json({ message: error });
     }
@@ -146,7 +155,10 @@ class UsersController {
   //DELETE PROFILE:
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
     try {
-      return res.status(200).json({ message: "success deleting profile" });
+      const user = await User.findOne({ _id: req.userId });
+      return res
+        .status(200)
+        .json({ message: "success deleting profile", theUser: user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
