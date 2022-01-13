@@ -27,6 +27,7 @@ class UsersController {
       //add refresh token
       refreshTokens.push(refreshToken);
 
+      //respond with accessToken and refreshToken
       return res.status(200).json({
         accessToken: accessToken,
         refreshToken: refreshToken,
@@ -123,10 +124,7 @@ class UsersController {
     try {
       //remove the old refreshToken from the refreshTokens list
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
-
-      return res
-        .status(200)
-        .json({ message: "success logging out", theUser: req.user });
+      return res.status(200).json({ message: "logged out successfully" });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
@@ -134,16 +132,23 @@ class UsersController {
 
   //GET PROFILE:
   public async getProfile(req: Request, res: Response): Promise<Response> {
+    //get user from request
     const { user } = req;
-    return res.status(200).json({ user });
+    try {
+      //populate lists of movies
+      await user.populate({ path: "lists", populate: { path: "movies" } });
+      //respond with user
+      return res.status(200).json({ user });
+    } catch (error) {
+      return res.status(500).json({ message: error });
+    }
   }
 
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
     try {
-      return res
-        .status(200)
-        .json({ message: "success updating profile", theUser: req.user });
+      //respond with updated user
+      return res.status(200).json({ theUser: req.user });
     } catch (error) {
       return res.status(400).json({ message: error });
     }
@@ -152,9 +157,8 @@ class UsersController {
   //DELETE PROFILE:
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
     try {
-      return res
-        .status(200)
-        .json({ message: "success deleting profile", theUser: req.user });
+      //respond with deleted user
+      return res.status(200).json({ theUser: req.user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
