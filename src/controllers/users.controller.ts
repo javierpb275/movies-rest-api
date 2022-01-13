@@ -124,11 +124,9 @@ class UsersController {
       //remove the old refreshToken from the refreshTokens list
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
-      const user = await User.findOne({ _id: req.userId });
-
       return res
         .status(200)
-        .json({ message: "success logging out", theUser: user });
+        .json({ message: "success logging out", theUser: req.user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }
@@ -136,17 +134,16 @@ class UsersController {
 
   //GET PROFILE:
   public async getProfile(req: Request, res: Response): Promise<Response> {
-    const user = await User.findOne({ _id: req.userId });
+    const { user } = req;
     return res.status(200).json({ user });
   }
 
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
     try {
-      const user = await User.findOne({ _id: req.userId });
       return res
         .status(200)
-        .json({ message: "success updating profile", theUser: user });
+        .json({ message: "success updating profile", theUser: req.user });
     } catch (error) {
       return res.status(400).json({ message: error });
     }
@@ -155,10 +152,9 @@ class UsersController {
   //DELETE PROFILE:
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
     try {
-      const user = await User.findOne({ _id: req.userId });
       return res
         .status(200)
-        .json({ message: "success deleting profile", theUser: user });
+        .json({ message: "success deleting profile", theUser: req.user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }

@@ -21,6 +21,7 @@ export const auth = async (
     if (!authHeader) {
       throw new Error();
     }
+
     //the request header contains the token "Bearer <token>", split the string and use the second value in the split array.
     const token: string = authHeader.split(" ")[1];
     if (!token) {
@@ -39,8 +40,9 @@ export const auth = async (
     if (!user) {
       throw new Error();
     }
-    req.token = token;
-    req.userId = user._id;
+
+    req.user = user;
+
     next();
   } catch (error) {
     res.status(401).send({ error: "Please authenticate" });
