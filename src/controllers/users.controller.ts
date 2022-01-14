@@ -146,11 +146,24 @@ class UsersController {
 
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
+    const { body, user } = req;
+    //check if what we try to update is NOT one of the properties of user:
+    const updates: string[] = Object.keys(body);
+    let allowedUpdate: "username" | "email" | "password" | "lists";
     try {
+      updates.forEach((update) => {
+        if (update != allowedUpdate) {
+          throw new Error();
+        } else {
+          user[update] = body[update];
+        }
+      });
+      //save updated user
+      await user.save();
       //respond with updated user
-      return res.status(200).json({ theUser: req.user });
+      return res.status(200).json({ user });
     } catch (error) {
-      return res.status(400).json({ message: error });
+      return res.status(400).json({ message: "Unable to update" });
     }
   }
 
