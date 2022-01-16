@@ -13,10 +13,12 @@ class UsersController {
   //REFRESH TOKEN:
   public async refreshToken(req: Request, res: Response): Promise<Response> {
     try {
+      if (!req.body.token) {
+        return res.status(400).send("Please, provide refresh token");
+      }
       if (!refreshTokens.includes(req.body.token)) {
         return res.status(400).send("Refresh Token Invalid");
       }
-
       //remove the old refreshToken from the refreshTokens list:
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
@@ -56,11 +58,11 @@ class UsersController {
       const accessToken: string = generateAccessToken(newUser._id.toString());
       const refreshToken: string = generateRefreshToken(newUser._id.toString());
 
-      //save user:
-      await newUser.save();
-
       //add refresh token
       refreshTokens.push(refreshToken);
+
+      //save user:
+      await newUser.save();
 
       //respond with user, accesstoken and refreshtoken
       return res.status(201).json({
@@ -121,9 +123,16 @@ class UsersController {
 
   //LOGOUT:
   public async logout(req: Request, res: Response): Promise<Response> {
+    if (!req.body.token) {
+      return res.status(400).send("Please, provide refresh token");
+    }
+    if (!refreshTokens.includes(req.body.token)) {
+      return res.status(400).send("Refresh Token Invalid");
+    }
     try {
       //remove the old refreshToken from the refreshTokens list
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
+
       return res.status(200).json({ message: "logged out successfully" });
     } catch (error) {
       return res.status(500).json({ message: error });
@@ -140,7 +149,7 @@ class UsersController {
         return res.status(404).json({ message: "User Not Found!" });
       }
       //populate lists of movies
-      await user.populate({ path: "lists", populate: { path: "movies" } });
+      //const populatedUser = await user.populate({ path: "lists", populate: { path: "movies" } });
       //respond with user
       return res.status(200).json({ user });
     } catch (error) {
@@ -181,12 +190,24 @@ class UsersController {
   //DELETE PROFILE:
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
     const { userId } = req;
+    if (!req.body.token) {
+      return res.status(400).send("Please, provide refresh token");
+    }
+    if (!refreshTokens.includes(req.body.token)) {
+      return res.status(400).send("Refresh Token Invalid");
+    }
     try {
       const user: IUser | null = await User.findById(userId);
+
       if (!user) {
         return res.status(404).json({ message: "User Not Found!" });
       }
+
       await user.remove();
+
+      //remove the old refreshToken from the refreshTokens list
+      refreshTokens = refreshTokens.filter((c) => c != req.body.token);
+
       //respond with deleted user
       return res.status(200).json({ user });
     } catch (error) {
