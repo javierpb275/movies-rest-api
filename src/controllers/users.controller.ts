@@ -115,7 +115,7 @@ class UsersController {
         refreshToken: refreshToken,
       });
     } catch (error) {
-      return res.status(400).json({ message: "Unable to login" });
+      return res.status(400).json({ message: error });
     }
   }
 
@@ -133,8 +133,12 @@ class UsersController {
   //GET PROFILE:
   public async getProfile(req: Request, res: Response): Promise<Response> {
     //get user from request
-    const { user } = req;
+    const { userId } = req;
     try {
+      const user: IUser | null = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User Not Found!" });
+      }
       //populate lists of movies
       await user.populate({ path: "lists", populate: { path: "movies" } });
       //respond with user
@@ -146,32 +150,45 @@ class UsersController {
 
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
-    const { body, user } = req;
-    //check if what we try to update is NOT one of the properties of user:
+    const { body, userId } = req;
+    //allow only certain propeties to be updated:
     const updates: string[] = Object.keys(body);
-    let allowedUpdate: "username" | "email" | "password" | "lists";
+    const allowedUpdates: string[] = ["username", "email", "password", "lists"];
+    const isValidOperation: boolean = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
+    if (!isValidOperation) {
+      return res.status(400).send({ error: "Invalid updates!" });
+    }
+    //-------------------------
     try {
-      updates.forEach((update) => {
-        if (update != allowedUpdate) {
-          throw new Error();
-        } else {
-          user[update] = body[update];
-        }
+      const user: IUser | null = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User Not Found!" });
+      }
+
+      const updatedUser = await User.findOneAndUpdate({ _id: userId }, body, {
+        new: true,
       });
-      //save updated user
-      await user.save();
+
       //respond with updated user
-      return res.status(200).json({ user });
+      return res.status(200).json({ user: updatedUser });
     } catch (error) {
-      return res.status(400).json({ message: "Unable to update" });
+      return res.status(500).json({ message: error });
     }
   }
 
   //DELETE PROFILE:
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
+    const { userId } = req;
     try {
+      const user: IUser | null = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User Not Found!" });
+      }
+      await user.remove();
       //respond with deleted user
-      return res.status(200).json({ theUser: req.user });
+      return res.status(200).json({ user });
     } catch (error) {
       return res.status(500).json({ message: error });
     }

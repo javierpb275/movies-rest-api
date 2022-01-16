@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { Request, Response, NextFunction } from "express";
-import User from "../models/user.model";
-import { IUser } from "../types";
 
 interface IPayload {
   id: string;
@@ -33,15 +31,7 @@ export const auth = async (
       config.AUTH.ACCESS_TOKEN_SECRET
     ) as IPayload;
 
-    const user: IUser | null = await User.findOne({
-      _id: payload.id,
-    });
-
-    if (!user) {
-      throw new Error();
-    }
-
-    req.user = user;
+    req.userId = payload.id;
 
     next();
   } catch (error) {
