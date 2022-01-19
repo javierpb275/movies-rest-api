@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import { IUser, Role } from "../types";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import Review from "../models/review.model";
+import Score from "../models/score.model";
+import List from "../models/list.model";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -62,6 +65,14 @@ userSchema.pre<IUser>("save", async function (next) {
   const salt: string = await bcrypt.genSalt(rounds);
   const hash: string = await bcrypt.hash(user.password, salt);
   user.password = hash;
+  next();
+});
+
+userSchema.pre<IUser>("remove", async function (next) {
+  const user: IUser = this;
+  await Review.deleteMany({ user: user._id });
+  await Score.deleteMany({ user: user._id });
+  await List.deleteMany({ user: user._id });
   next();
 });
 
