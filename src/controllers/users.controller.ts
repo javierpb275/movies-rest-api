@@ -5,6 +5,7 @@ import {
 } from "../helpers/tokenGenerator.helper";
 import User from "../models/user.model";
 import { IUser } from "../types";
+import bcrypt from "bcryptjs";
 
 //REFRESH TOKENS LIST:
 let refreshTokens: string[] = [];
@@ -174,6 +175,14 @@ class UsersController {
       const user: IUser | null = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: "User Not Found!" });
+      }
+
+      //if the password is changed, we have to encrypt it before save it:
+      if (body.password) {
+        const rounds: number = 10;
+        const salt: string = await bcrypt.genSalt(rounds);
+        const hash: string = await bcrypt.hash(body.password, salt);
+        body.password = hash;
       }
 
       const updatedUser = await User.findOneAndUpdate({ _id: userId }, body, {
