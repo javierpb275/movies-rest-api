@@ -145,12 +145,12 @@ class UsersController {
     //get user from request
     const { userId } = req;
     try {
-      const user: IUser | null = await User.findById(userId);
+      const user: IUser | null = await User.findOne({ _id: userId });
       if (!user) {
         return res.status(404).send({ error: "User Not Found!" });
       }
       //populate lists of movies
-      //const populatedUser = await user.populate({ path: "lists", populate: { path: "movies" } });
+      await user.populate({ path: "lists", populate: { path: "movies" } });
       //respond with user
       return res.status(200).send(user);
     } catch (error) {
@@ -172,7 +172,7 @@ class UsersController {
     }
     //-------------------------
     try {
-      const user: IUser | null = await User.findById(userId);
+      const user: IUser | null = await User.findOne({ _id: userId });
       if (!user) {
         return res.status(404).send({ error: "User Not Found!" });
       }
@@ -206,7 +206,7 @@ class UsersController {
       return res.status(400).send({ error: "Refresh Token Invalid" });
     }
     try {
-      const user: IUser | null = await User.findById(userId);
+      const user: IUser | null = await User.findOne({ _id: userId });
 
       if (!user) {
         return res.status(404).send({ error: "User Not Found!" });
