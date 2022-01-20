@@ -15,10 +15,10 @@ class UsersController {
   public async refreshToken(req: Request, res: Response): Promise<Response> {
     try {
       if (!req.body.token) {
-        return res.status(400).send("Please, provide refresh token");
+        return res.status(400).send({ error: "Please, provide refresh token" });
       }
       if (!refreshTokens.includes(req.body.token)) {
-        return res.status(400).send("Refresh Token Invalid");
+        return res.status(400).send({ error: "Refresh Token Invalid" });
       }
       //remove the old refreshToken from the refreshTokens list:
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
@@ -31,12 +31,12 @@ class UsersController {
       refreshTokens.push(refreshToken);
 
       //respond with accessToken and refreshToken
-      return res.status(200).json({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+      return res.status(200).send({
+        accessToken,
+        refreshToken,
       });
     } catch (error) {
-      return res.status(500).json({ message: error });
+      return res.status(500).send(error);
     }
   }
 
@@ -52,7 +52,7 @@ class UsersController {
       });
 
       if (foundUser) {
-        return res.status(400).json({ message: "Wrong email. Try again" });
+        return res.status(400).send({ error: "Wrong email. Try again" });
       }
 
       //create accesstoken and refreshtoken:
@@ -66,13 +66,13 @@ class UsersController {
       await newUser.save();
 
       //respond with user, accesstoken and refreshtoken
-      return res.status(201).json({
+      return res.status(201).send({
         user: newUser,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        accessToken,
+        refreshToken,
       });
     } catch (error) {
-      return res.status(400).json({ message: error });
+      return res.status(400).send(error);
     }
   }
 
@@ -82,7 +82,7 @@ class UsersController {
     if (!req.body.email || !req.body.password) {
       return res
         .status(400)
-        .json({ message: "Please, Send your email and password" });
+        .send({ error: "Please, send your email and password" });
     }
 
     try {
@@ -91,7 +91,7 @@ class UsersController {
         email: req.body.email,
       });
       if (!foundUser) {
-        return res.status(400).json({ message: "Wrong credentials" });
+        return res.status(400).send({ error: "Wrong credentials" });
       }
 
       //check password:
@@ -99,7 +99,7 @@ class UsersController {
         req.body.password
       );
       if (!isMatch) {
-        return res.status(400).json({ message: "Wrong credentials" });
+        return res.status(400).send({ error: "Wrong credentials" });
       }
 
       //create accesstoken and refreshtoken:
@@ -112,31 +112,31 @@ class UsersController {
       refreshTokens.push(refreshToken);
 
       //respond with user, accesstoken and refreshtoken
-      return res.status(200).json({
+      return res.status(200).send({
         user: foundUser,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        accessToken,
+        refreshToken,
       });
     } catch (error) {
-      return res.status(400).json({ message: error });
+      return res.status(400).send({ error: "Unable to log in" });
     }
   }
 
   //LOGOUT:
   public async logout(req: Request, res: Response): Promise<Response> {
     if (!req.body.token) {
-      return res.status(400).send("Please, provide refresh token");
+      return res.status(400).send({ error: "Please, provide refresh token" });
     }
     if (!refreshTokens.includes(req.body.token)) {
-      return res.status(400).send("Refresh Token Invalid");
+      return res.status(400).send({ error: "Refresh Token Invalid" });
     }
     try {
       //remove the old refreshToken from the refreshTokens list
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
-      return res.status(200).json({ message: "logged out successfully" });
+      return res.status(200).send({ message: "logged out successfully" });
     } catch (error) {
-      return res.status(500).json({ message: error });
+      return res.status(500).send({ error: "Unable to log out" });
     }
   }
 
@@ -147,14 +147,14 @@ class UsersController {
     try {
       const user: IUser | null = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ message: "User Not Found!" });
+        return res.status(404).send({ error: "User Not Found!" });
       }
       //populate lists of movies
       //const populatedUser = await user.populate({ path: "lists", populate: { path: "movies" } });
       //respond with user
-      return res.status(200).json({ user });
+      return res.status(200).send(user);
     } catch (error) {
-      return res.status(500).json({ message: error });
+      return res.status(500).send(error);
     }
   }
 
@@ -174,7 +174,7 @@ class UsersController {
     try {
       const user: IUser | null = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ message: "User Not Found!" });
+        return res.status(404).send({ error: "User Not Found!" });
       }
 
       //if the password is changed, we have to encrypt it before save it:
@@ -190,9 +190,9 @@ class UsersController {
       });
 
       //respond with updated user
-      return res.status(200).json({ user: updatedUser });
+      return res.status(200).send(updatedUser);
     } catch (error) {
-      return res.status(500).json({ message: error });
+      return res.status(400).send(error);
     }
   }
 
@@ -200,16 +200,16 @@ class UsersController {
   public async deleteProfile(req: Request, res: Response): Promise<Response> {
     const { userId } = req;
     if (!req.body.token) {
-      return res.status(400).send("Please, provide refresh token");
+      return res.status(400).send({ error: "Please, provide refresh token" });
     }
     if (!refreshTokens.includes(req.body.token)) {
-      return res.status(400).send("Refresh Token Invalid");
+      return res.status(400).send({ error: "Refresh Token Invalid" });
     }
     try {
       const user: IUser | null = await User.findById(userId);
 
       if (!user) {
-        return res.status(404).json({ message: "User Not Found!" });
+        return res.status(404).send({ error: "User Not Found!" });
       }
 
       await user.remove();
@@ -218,9 +218,9 @@ class UsersController {
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
       //respond with deleted user
-      return res.status(200).json({ user });
+      return res.status(200).send(user);
     } catch (error) {
-      return res.status(500).json({ message: error });
+      return res.status(500).send(error);
     }
   }
 }

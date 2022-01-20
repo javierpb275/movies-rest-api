@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import userRouter from "./routes/user.router";
+import movieRouter from "./routes/movie.router";
 
 const app: Application = express();
 
@@ -13,5 +14,6 @@ app.use(express.json());
 
 //routes
 app.use("/api/users", userRouter);
+app.use("/api/movies", movieRouter);
 
 export default app;
