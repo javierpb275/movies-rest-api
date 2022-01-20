@@ -45,7 +45,15 @@ class MoviesController {
   }
 
   public async updateMovie(req: Request, res: Response): Promise<Response> {
+    const { userId } = req;
     try {
+      const user: IUser | null = await User.findOne({ _id: userId });
+      if (!user) {
+        return res.status(404).send({ error: "User Not Found!" });
+      }
+      if (user.role !== "ADMIN") {
+        return res.status(401).send({ error: "You are not authorized!" });
+      }
       return res.status(200).send("updateMovie");
     } catch (error) {
       return res.status(500).send({ error: "Unable to update movie" });
@@ -53,7 +61,15 @@ class MoviesController {
   }
 
   public async deleteMovie(req: Request, res: Response): Promise<Response> {
+    const { userId } = req;
     try {
+      const user: IUser | null = await User.findOne({ _id: userId });
+      if (!user) {
+        return res.status(404).send({ error: "User Not Found!" });
+      }
+      if (user.role !== "ADMIN") {
+        return res.status(401).send({ error: "You are not authorized!" });
+      }
       return res.status(200).send("deleteMovie");
     } catch (error) {
       return res.status(500).send({ error: "Unable to delete movie" });
