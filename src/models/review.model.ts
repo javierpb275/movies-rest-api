@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IReview, Opinion } from "../types";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const reviewSchema = new mongoose.Schema<IReview>(
   {
@@ -28,5 +29,7 @@ const reviewSchema = new mongoose.Schema<IReview>(
     timestamps: true,
   }
 );
+
+reviewSchema.plugin(mongoosePaginate);
 
 export default mongoose.model<IReview>("Review", reviewSchema);

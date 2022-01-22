@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IMovie } from "../types";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const movieSchema = new mongoose.Schema<IMovie>(
   {
@@ -65,5 +66,7 @@ const movieSchema = new mongoose.Schema<IMovie>(
     timestamps: true,
   }
 );
+
+movieSchema.plugin(mongoosePaginate);
 
 export default mongoose.model<IMovie>("Movie", movieSchema);

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IList } from "../types";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const listSchema = new mongoose.Schema<IList>(
   {
@@ -24,5 +25,7 @@ const listSchema = new mongoose.Schema<IList>(
     timestamps: true,
   }
 );
+
+listSchema.plugin(mongoosePaginate);
 
 export default mongoose.model<IList>("List", listSchema);

@@ -77,6 +77,6 @@ class MoviesController {
   }
 }
 
-const moviesController = new MoviesController();
+const moviesController: MoviesController = new MoviesController();
 
 export default moviesController;

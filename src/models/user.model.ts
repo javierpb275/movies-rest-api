@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import Review from "../models/review.model";
 import Score from "../models/score.model";
 import List from "../models/list.model";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -55,6 +56,8 @@ const userSchema = new mongoose.Schema<IUser>(
     timestamps: true,
   }
 );
+
+userSchema.plugin(mongoosePaginate);
 
 userSchema.pre<IUser>("save", async function (next) {
   const user: IUser = this;

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IScore, Points } from "../types";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const scoreSchema = new mongoose.Schema<IScore>(
   {
@@ -23,5 +24,7 @@ const scoreSchema = new mongoose.Schema<IScore>(
     timestamps: true,
   }
 );
+
+scoreSchema.plugin(mongoosePaginate);
 
 export default mongoose.model<IScore>("Score", scoreSchema);

@@ -225,6 +225,6 @@ class UsersController {
   }
 }
 
-const usersController = new UsersController();
+const usersController: UsersController = new UsersController();
 
 export default usersController;
