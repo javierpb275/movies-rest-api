@@ -3,13 +3,26 @@ import { IUser } from "../types";
 import User from "../models/user.model";
 import Movie from "../models/movie.model";
 import { IMovie } from "../types";
+import { getPagination } from "../helpers/paginator.helper";
 
 class MoviesController {
   public async getMovies(req: Request, res: Response): Promise<Response> {
+    const { query } = req;
+    const { limit, skip, sort } = getPagination(
+      query.limit?.toString(),
+      query.skip?.toString(),
+      query.sort?.toString()
+    );
+    let allMovies: IMovie[];
     try {
-      return res.status(200).send("getMovies");
+      allMovies = await Movie.find()
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate("scores");
+      return res.status(200).send(allMovies);
     } catch (error) {
-      return res.status(500).send({ error: "Unable to get movies" });
+      return res.status(500).send(error);
     }
   }
 
@@ -20,6 +33,10 @@ class MoviesController {
       if (!movie) {
         return res.status(404).send({ error: "Movie Not Found!" });
       }
+      await movie.populate([
+        { path: "reviews", populate: { path: "user" } },
+        { path: "scores" },
+      ]);
       return res.status(200).send(movie);
     } catch (error) {
       return res.status(500).send(error);
