@@ -14,3 +14,17 @@ export const getPagination = (
   const sort = sorted ? sorted : "-createdAt";
   return { limit, skip, sort };
 };
+
+export const getMovieFilterOptions = (query: any): any => {
+  const filter: any = {};
+  if (query.title) {
+    filter.title = query.title;
+  }
+  if (query.year) {
+    filter.year = Number(query.year);
+  }
+  if (query.genre) {
+    filter.genres = query.genre;
+  }
+  return filter;
+};
