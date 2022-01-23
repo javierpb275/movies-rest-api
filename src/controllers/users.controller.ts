@@ -35,8 +35,8 @@ class UsersController {
         accessToken,
         refreshToken,
       });
-    } catch (error) {
-      return res.status(500).send(error);
+    } catch (err) {
+      return res.status(500).send(err);
     }
   }
 
@@ -71,8 +71,8 @@ class UsersController {
         accessToken,
         refreshToken,
       });
-    } catch (error) {
-      return res.status(400).send(error);
+    } catch (err) {
+      return res.status(400).send(err);
     }
   }
 
@@ -117,7 +117,7 @@ class UsersController {
         accessToken,
         refreshToken,
       });
-    } catch (error) {
+    } catch (err) {
       return res.status(400).send({ error: "Unable to log in" });
     }
   }
@@ -135,7 +135,7 @@ class UsersController {
       refreshTokens = refreshTokens.filter((c) => c != req.body.token);
 
       return res.status(200).send({ message: "logged out successfully" });
-    } catch (error) {
+    } catch (err) {
       return res.status(500).send({ error: "Unable to log out" });
     }
   }
@@ -153,8 +153,8 @@ class UsersController {
       await user.populate({ path: "lists", populate: { path: "movies" } });
       //respond with user
       return res.status(200).send(user);
-    } catch (error) {
-      return res.status(500).send(error);
+    } catch (err) {
+      return res.status(500).send(err);
     }
   }
 
@@ -163,7 +163,7 @@ class UsersController {
     const { body, userId } = req;
     //allow only certain propeties to be updated:
     const updates: string[] = Object.keys(body);
-    const allowedUpdates: string[] = ["username", "email", "password", "lists"];
+    const allowedUpdates: string[] = ["username", "email", "password"];
     const isValidOperation: boolean = updates.every((update) =>
       allowedUpdates.includes(update)
     );
@@ -191,8 +191,8 @@ class UsersController {
 
       //respond with updated user
       return res.status(200).send(updatedUser);
-    } catch (error) {
-      return res.status(400).send(error);
+    } catch (err) {
+      return res.status(400).send(err);
     }
   }
 
@@ -219,8 +219,8 @@ class UsersController {
 
       //respond with deleted user
       return res.status(200).send(user);
-    } catch (error) {
-      return res.status(500).send(error);
+    } catch (err) {
+      return res.status(500).send(err);
     }
   }
 }
