@@ -3,20 +3,17 @@ import { IUser } from "../types";
 import User from "../models/user.model";
 import Movie from "../models/movie.model";
 import { IMovie } from "../types";
-import {
-  getPagination,
-  getMovieFilterOptions,
-} from "../helpers/paginator.helper";
+import { getPaginationOptions, getMatch } from "../helpers/paginator.helper";
 
 class MoviesController {
   public async getMovies(req: Request, res: Response): Promise<Response> {
     const { query } = req;
-    const { limit, skip, sort } = getPagination(
+    const { limit, skip, sort } = getPaginationOptions(
       query.limit?.toString(),
       query.skip?.toString(),
       query.sort?.toString()
     );
-    const filter = getMovieFilterOptions(query);
+    const filter = getMatch(query);
     try {
       const allMovies: IMovie[] = await Movie.find(filter)
         .sort(sort)

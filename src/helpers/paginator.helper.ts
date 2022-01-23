@@ -4,7 +4,7 @@ type PaginationOptions = {
   sort: string;
 };
 
-export const getPagination = (
+export const getPaginationOptions = (
   limited?: string,
   skipped?: string,
   sorted?: string
@@ -15,7 +15,28 @@ export const getPagination = (
   return { limit, skip, sort };
 };
 
-export const getMovieFilterOptions = (query: any): any => {
+export const getMatch = (query: any): any => {
+  const match: any = {};
+  const keys: string[] = Object.keys(query);
+  const filteredKeys: string[] = keys.filter((key) => {
+    return key !== "sort" && key !== "skip" && key !== "limit";
+  });
+  filteredKeys.forEach((key) => {
+    if (!isNaN(Number(query[key]))) {
+      query[key] = Number(query[key]);
+    } else if (query[key] === "true" || query[key] === "false") {
+      if (query[key] === "true") {
+        query[key] = true;
+      } else {
+        query[key] = false;
+      }
+    }
+    return (match[key] = query[key]);
+  });
+  return match;
+};
+
+export const getMovieFilter = (query: any): any => {
   const filter: any = {};
   if (query.title) {
     filter.title = query.title;
