@@ -116,13 +116,14 @@ class MoviesController {
       if (user.role !== "ADMIN") {
         return res.status(401).send({ error: "You are not authorized!" });
       }
-      const deletedMovie: IMovie | null = await Movie.findOneAndDelete({
+      const movie: IMovie | null = await Movie.findOne({
         _id: params.id,
       });
-      if (!deletedMovie) {
+      if (!movie) {
         return res.status(404).send({ error: "Movie Not Found!" });
       }
-      return res.status(200).send(deletedMovie);
+      await movie.remove();
+      return res.status(200).send(movie);
     } catch (err) {
       return res.status(500).send(err);
     }
