@@ -13,9 +13,9 @@ class MoviesController {
       query.skip?.toString(),
       query.sort?.toString()
     );
-    const filter = getMatch(query);
+    const match = getMatch(query);
     try {
-      const allMovies: IMovie[] = await Movie.find(filter)
+      const allMovies: IMovie[] = await Movie.find(match)
         .sort(sort)
         .skip(skip)
         .limit(limit)
