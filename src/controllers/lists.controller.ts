@@ -94,8 +94,21 @@ class ListsController {
   }
 
   public async deleteList(req: Request, res: Response): Promise<Response> {
+    const { userId, params } = req;
     try {
-      return res.status(200).send("deleteList");
+      const user: IUser | null = await User.findOne({ _id: userId });
+      if (!user) {
+        return res.status(404).send({ error: "User Not Found!" });
+      }
+      const list: IList | null = await List.findOne({
+        _id: params.id,
+        user: user._id,
+      });
+      if (!list) {
+        return res.status(404).send({ error: "List Not Found!" });
+      }
+      await list.remove();
+      return res.status(200).send(list);
     } catch (err) {
       return res.status(500).send(err);
     }
