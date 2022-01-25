@@ -56,8 +56,6 @@ class ListsController {
       }
       const newList: IList = new List({ ...body, user: user._id });
       await newList.save();
-      user.lists.push(newList._id);
-      await user.save();
       return res.status(201).send(newList);
     } catch (err) {
       return res.status(400).send(err);

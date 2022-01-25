@@ -51,18 +51,6 @@ const movieSchema = new mongoose.Schema<IMovie>(
         trim: true,
       },
     ],
-    reviews: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Review",
-      },
-    ],
-    scores: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Score",
-      },
-    ],
   },
   {
     timestamps: true,
@@ -70,6 +58,21 @@ const movieSchema = new mongoose.Schema<IMovie>(
 );
 
 movieSchema.plugin(mongoosePaginate);
+
+movieSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "movie",
+});
+
+movieSchema.virtual("scores", {
+  ref: "Score",
+  localField: "_id",
+  foreignField: "movie",
+});
+
+movieSchema.set("toObject", { virtuals: true });
+movieSchema.set("toJSON", { virtuals: true });
 
 movieSchema.pre<IMovie>("remove", async function (next) {
   const movie: IMovie = this;

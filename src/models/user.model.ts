@@ -45,12 +45,6 @@ const userSchema = new mongoose.Schema<IUser>(
       enum: Role,
       default: Role.USER,
     },
-    lists: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "List",
-      },
-    ],
   },
   {
     timestamps: true,
@@ -58,6 +52,23 @@ const userSchema = new mongoose.Schema<IUser>(
 );
 
 userSchema.plugin(mongoosePaginate);
+
+userSchema.virtual("lists", {
+  ref: "List",
+  localField: "_id",
+  foreignField: "user",
+});
+
+userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", { virtuals: true });
+
+userSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.role;
+  return userObject;
+};
 
 userSchema.pre<IUser>("save", async function (next) {
   const user: IUser = this;
