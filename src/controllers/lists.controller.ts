@@ -3,6 +3,7 @@ import { IList, IUser } from "../types";
 import User from "../models/user.model";
 import List from "../models/list.model";
 import { getMatch, getPaginationOptions } from "../helpers/paginator.helper";
+import { validateBodyProperties } from "../helpers/validateRequest.helper";
 
 class ListsController {
   public async getLists(req: Request, res: Response): Promise<Response> {
@@ -64,14 +65,13 @@ class ListsController {
 
   public async updateList(req: Request, res: Response): Promise<Response> {
     const { userId, body, params } = req;
-    //allow only certain propeties to be updated:
-    const updates: string[] = Object.keys(body);
-    const allowedUpdates: string[] = ["name", "movies"];
-    const isValidOperation: boolean = updates.every((update) =>
-      allowedUpdates.includes(update)
-    );
+    //allow only certain properties to be updated:
+    const isValidOperation: boolean = validateBodyProperties(body, [
+      "name",
+      "movies",
+    ]);
     if (!isValidOperation) {
-      return res.status(400).send({ error: "Invalid updates!" });
+      return res.status(400).send({ error: "Invalid properties!" });
     }
     //-------------------------
     try {

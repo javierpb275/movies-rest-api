@@ -6,6 +6,7 @@ import {
 import User from "../models/user.model";
 import { IUser } from "../types";
 import bcrypt from "bcryptjs";
+import { validateBodyProperties } from "../helpers/validateRequest.helper";
 
 //REFRESH TOKENS LIST:
 let refreshTokens: string[] = [];
@@ -161,14 +162,14 @@ class UsersController {
   //UPDATE PROFILE:
   public async updateProfile(req: Request, res: Response): Promise<Response> {
     const { body, userId } = req;
-    //allow only certain propeties to be updated:
-    const updates: string[] = Object.keys(body);
-    const allowedUpdates: string[] = ["username", "email", "password"];
-    const isValidOperation: boolean = updates.every((update) =>
-      allowedUpdates.includes(update)
-    );
+    //allow only certain properties to be updated:
+    const isValidOperation: boolean = validateBodyProperties(body, [
+      "username",
+      "email",
+      "password",
+    ]);
     if (!isValidOperation) {
-      return res.status(400).send({ error: "Invalid updates!" });
+      return res.status(400).send({ error: "Invalid properties!" });
     }
     //-------------------------
     try {

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { IReview, IUser } from "../types";
 import User from "../models/user.model";
 import Review from "../models/review.model";
+import { validateBodyProperties } from "../helpers/validateRequest.helper";
 
 class ReviewsController {
   public async getReviews(req: Request, res: Response): Promise<Response> {
@@ -11,6 +12,7 @@ class ReviewsController {
       return res.status(500).send(err);
     }
   }
+
   public async getReview(req: Request, res: Response): Promise<Response> {
     try {
       return res.status(200).send("getReview");
@@ -35,12 +37,33 @@ class ReviewsController {
   }
 
   public async updateReview(req: Request, res: Response): Promise<Response> {
+    const { userId, body, params } = req;
+    //allow only certain properties to be updated:
+    const isValidOperation: boolean = validateBodyProperties(body, [
+      "comment",
+      "opinion",
+    ]);
+    if (!isValidOperation) {
+      return res.status(400).send({ error: "Invalid properties!" });
+    }
+    //-------------------------
     try {
-      return res.status(200).send("updateReview");
+      const updatedReview: IReview | null = await Review.findOneAndUpdate(
+        { _id: params.id, user: userId },
+        body,
+        {
+          new: true,
+        }
+      );
+      if (!updatedReview) {
+        return res.status(404).send({ error: "Review Not Found!" });
+      }
+      return res.status(200).send(updatedReview);
     } catch (err) {
       return res.status(400).send(err);
     }
   }
+
   public async deleteReview(req: Request, res: Response): Promise<Response> {
     try {
       return res.status(200).send("deleteReview");

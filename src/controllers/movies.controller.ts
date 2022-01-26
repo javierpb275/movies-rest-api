@@ -63,25 +63,6 @@ class MoviesController {
 
   public async updateMovie(req: Request, res: Response): Promise<Response> {
     const { userId, body, params } = req;
-    //allow only certain propeties to be updated:
-    const updates: string[] = Object.keys(body);
-    const allowedUpdates: string[] = [
-      "imgUrl",
-      "title",
-      "year",
-      "synopsis",
-      "directors",
-      "cast",
-      "screenWriters",
-      "genres",
-    ];
-    const isValidOperation: boolean = updates.every((update) =>
-      allowedUpdates.includes(update)
-    );
-    if (!isValidOperation) {
-      return res.status(400).send({ error: "Invalid updates!" });
-    }
-    //-------------------------
     try {
       const user: IUser | null = await User.findOne({ _id: userId });
       if (!user) {
