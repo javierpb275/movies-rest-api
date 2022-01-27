@@ -65,8 +65,17 @@ class ReviewsController {
   }
 
   public async deleteReview(req: Request, res: Response): Promise<Response> {
+    const { userId, params } = req;
     try {
-      return res.status(200).send("deleteReview");
+      const review: IReview | null = await Review.findOne({
+        _id: params.id,
+        user: userId,
+      });
+      if (!review) {
+        return res.status(404).send({ error: "Review Not Found!" });
+      }
+      await review.remove();
+      return res.status(200).send(review);
     } catch (err) {
       return res.status(500).send(err);
     }

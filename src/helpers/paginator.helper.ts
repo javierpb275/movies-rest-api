@@ -4,14 +4,10 @@ type PaginationOptions = {
   sort: string;
 };
 
-export const getPaginationOptions = (
-  limited?: string,
-  skipped?: string,
-  sorted?: string
-): PaginationOptions => {
-  const limit = limited ? Number(limited) : 10;
-  const skip = skipped ? Number(skipped) : 0;
-  const sort = sorted ? sorted : "-createdAt";
+export const getPaginationOptions = (query: any): PaginationOptions => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const skip = query.skip ? Number(query.skip) : 0;
+  const sort = query.sort ? query.sort : "-createdAt";
   return { limit, skip, sort };
 };
 

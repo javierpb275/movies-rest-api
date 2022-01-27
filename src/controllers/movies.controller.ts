@@ -8,11 +8,7 @@ import { getPaginationOptions, getMatch } from "../helpers/paginator.helper";
 class MoviesController {
   public async getMovies(req: Request, res: Response): Promise<Response> {
     const { query } = req;
-    const { limit, skip, sort } = getPaginationOptions(
-      query.limit?.toString(),
-      query.skip?.toString(),
-      query.sort?.toString()
-    );
+    const { limit, skip, sort } = getPaginationOptions(query);
     const match = getMatch(query);
     try {
       const allMovies: IMovie[] = await Movie.find(match)

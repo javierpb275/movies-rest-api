@@ -13,11 +13,7 @@ class ListsController {
       if (!user) {
         return res.status(404).send({ error: "User Not Found!" });
       }
-      const options = getPaginationOptions(
-        query.limit?.toString(),
-        query.skip?.toString(),
-        query.sort?.toString()
-      );
+      const options = getPaginationOptions(query);
       const match = getMatch(query);
       await user.populate({
         path: "lists",
@@ -94,13 +90,9 @@ class ListsController {
   public async deleteList(req: Request, res: Response): Promise<Response> {
     const { userId, params } = req;
     try {
-      const user: IUser | null = await User.findOne({ _id: userId });
-      if (!user) {
-        return res.status(404).send({ error: "User Not Found!" });
-      }
       const list: IList | null = await List.findOne({
         _id: params.id,
-        user: user._id,
+        user: userId,
       });
       if (!list) {
         return res.status(404).send({ error: "List Not Found!" });
