@@ -3,19 +3,33 @@ import { IReview, IUser } from "../types";
 import User from "../models/user.model";
 import Review from "../models/review.model";
 import { validateBodyProperties } from "../helpers/validateRequest.helper";
+import { getMatch, getPaginationOptions } from "../helpers/paginator.helper";
 
 class ReviewsController {
   public async getReviews(req: Request, res: Response): Promise<Response> {
+    const { query } = req;
+    const { limit, skip, sort } = getPaginationOptions(query);
+    const match = getMatch(query);
     try {
-      return res.status(200).send("getReviews");
+      const allReviews: IReview[] = await Review.find(match)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+      return res.status(200).send(allReviews);
     } catch (err) {
       return res.status(500).send(err);
     }
   }
 
   public async getReview(req: Request, res: Response): Promise<Response> {
+    const { params } = req;
     try {
-      return res.status(200).send("getReview");
+      const review: IReview | null = await Review.findOne({ _id: params.id });
+      if (!review) {
+        return res.status(404).send({ error: "Review Not Found!" });
+      }
+      await review.populate(["movie", "user"]);
+      return res.status(200).send(review);
     } catch (err) {
       return res.status(500).send(err);
     }
